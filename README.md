@@ -1,4 +1,4 @@
-## 🚀 Next Auth Starter – Ujikom Edition
+## 🚀 Next Auth Starter
 
 Selamat datang di proyek Next.js penuh semangat ini! Repositori ini memadukan **Next.js 16**, **Tailwind CSS 4**, dan **Better Auth** di atas database **Prisma + SQLite**. Cocok untuk membangun aplikasi autentikasi modern.
 
@@ -71,4 +71,5 @@ Dengan dokumentasi ini, harapannya kamu bisa:
 - Melanjutkan pengembangan fitur dengan penuh percaya diri.
 
 Semangat berkarya! 💪
+
 # Better-auth-setup
