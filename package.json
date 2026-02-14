@@ -12,22 +12,27 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
+        "@heroicons/react": "^2.2.0",
         "@prisma/client": "^5.22.0",
+        "axios": "^1.13.5",
         "better-auth": "^1.4.18",
+        "daisyui": "^5.5.18",
+        "lucide-react": "^0.564.0",
         "next": "16.1.6",
         "react": "19.2.3",
         "react-dom": "19.2.3"
     },
     "devDependencies": {
-        "@tailwindcss/postcss": "^4",
+        "@tailwindcss/postcss": "^4.1.18",
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "eslint": "^9",
         "eslint-config-next": "16.1.6",
         "prisma": "^5.22.0",
-        "tailwindcss": "^4",
+        "tailwindcss": "^4.1.18",
         "tsx": "^4.21.0",
         "typescript": "^5"
-    }
+    },
+    "browserslist": "> 1%"
 }
