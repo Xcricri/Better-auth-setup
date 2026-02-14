@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "better-auth/crypto";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
@@ -9,11 +10,10 @@ async function main() {
 
     console.log("🚀 Memulai proses seeding...");
 
-    // 1. Hash password menggunakan standar Better Auth
-    // Ini menjamin format salt dan algoritma sesuai dengan engine auth kamu
+    // Hash password
     const hashedPassword = await hashPassword(plainPassword);
 
-    // 2. Upsert User (buat jika belum ada, abaikan jika sudah ada)
+    // Upsert User
     const user = await prisma.user.upsert({
         where: { email },
         update: {},
@@ -25,8 +25,7 @@ async function main() {
         },
     });
 
-    // 3. Upsert Account (Relasi kredensial login)
-    // Pastikan providerId adalah "credential" agar dibaca oleh emailAndPassword
+    // Upsert Account
     await prisma.account.upsert({
         where: {
             providerId_accountId: {
@@ -45,11 +44,55 @@ async function main() {
         },
     });
 
-    console.log(`✅ Seed Berhasil!`);
+    // Random users
+
+    for (let i = 0; i < 5; i++) {
+        const randomName = faker.person.fullName();
+        const randomEmail = faker.internet.email().toLocaleLowerCase();
+        const randomPassword = "user12345678";
+
+        const hashedRandomPassword = await hashPassword(randomPassword);
+
+        // Simpan user dan tangkap hasilnya
+        const randomUser = await prisma.user.upsert({
+            where: { email: randomEmail },
+            update: {},
+            create: {
+                email: randomEmail,
+                name: randomName,
+                emailVerified: true,
+                image: "https://api.dicebear.com",
+                role: "user"
+            },
+        });
+
+        // Langsung pakai randomUser.id (tidak perlu findUnique lagi)
+        await prisma.account.upsert({
+            where: {
+                providerId_accountId: {
+                    providerId: "credential",
+                    accountId: randomEmail,
+                },
+            },
+            update: {
+                password: hashedRandomPassword,
+            },
+            create: {
+                userId: randomUser.id,
+                providerId: "credential",
+                accountId: randomEmail,
+                password: hashedRandomPassword,
+            },
+        });
+        console.log(`👤 ${randomEmail} | 🔑 ${randomPassword}`);
+    }
+
+    console.log("✅ Seed Berhasil!");
     console.log(`📧 Email: ${email}`);
     console.log(`🔑 Password: ${plainPassword}`);
 }
 
+// Panggil main DI LUAR function
 main()
     .catch((e) => {
         console.error("❌ Terjadi error saat seeding:", e);

@@ -7,4 +7,9 @@ export const auth = betterAuth({
     baseURL: process.env.BETTER_AUTH_BASE_URL,
     emailAndPassword: { enabled: true },
     session: { expiresIn: 60 * 60 * 24 * 7 }, // 7 hari
+    advanced: {
+        database: {
+            generateId: "serial",
+        },
+    },
 });

@@ -1,3 +1,5 @@
+
+#### Admin login test
 POST http://localhost:3000/api/auth/sign-in/email
 Content-Type: application/json
 Origin: http://localhost:3000
@@ -7,3 +9,17 @@ Origin: http://localhost:3000
     "password": "12345678"
 }
 
+#### User login test
+POST http://localhost:3000/api/auth/sign-in/email
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+    "email": "wilmer_parker@yahoo.com",
+    "password": "user12345678"
+}
+
+####
+
+GET http://localhost:3000/
+Authorization: bearer

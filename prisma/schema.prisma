@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-    id            String   @id @default(cuid())
+    id            Int      @id @default(autoincrement())
     email         String   @unique
     name          String?
     emailVerified Boolean
@@ -34,24 +34,24 @@ model User {
 }
 
 model Session {
-    id        String   @id @default(cuid())
+    id        Int      @id @default(autoincrement())
     expiresAt DateTime
     token     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     ipAddress String?
     userAgent String?
-    userId    String
+    userId    Int
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("session")
 }
 
 model Account {
-    id                    String    @id @default(cuid())
+    id                    Int       @id @default(autoincrement())
     accountId             String
     providerId            String
-    userId                String
+    userId                Int
     user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     password              String?
     accessToken           String?
@@ -78,21 +78,20 @@ model Page {
     content       String
     featuredImage String?
 
-    authorId String // Diubah ke String agar match dengan User.id (cuid)
-    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId Int
+    author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model Service {
-    id          Int     @id @default(autoincrement())
+    id          Int    @id @default(autoincrement())
     title       String
     description String
-    icon        String?
 
-    authorId String // Diubah ke String
-    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId Int
+    author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -105,8 +104,8 @@ model Portfolio {
     content          String
     projectDate      DateTime
 
-    authorId String // Diubah ke String
-    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId Int
+    author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
     images PortfolioImage[]
 

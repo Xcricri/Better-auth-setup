@@ -1,58 +1,33 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// middleware.js
+import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PREFIX = "/user";
-const PUBLIC_PATH = "/user/login";
-const ALLOWED_ROLES = new Set(["admin", "user"]);
+const LOGIN_PATH = '/user/login';
+const DASHBOARD_PATH = '/user/dashboard';
+const SESSION_COOKIE_NAME = 'better-auth.session_token';
 
-export async function proxy(request: NextRequest) {
-    const { pathname, search } = request.nextUrl;
+export function proxy(req: NextRequest) {
+    const { pathname } = req.nextUrl;
+    const isLoginPage = pathname === LOGIN_PATH;
+    const hasSession = Boolean(req.cookies.get(SESSION_COOKIE_NAME)?.value);
 
-    // Jika bukan path yang dilindungi atau path publik, lanjutkan
-    if (!pathname.startsWith(PROTECTED_PREFIX) || pathname === PUBLIC_PATH) {
-        return NextResponse.next();
+    if (!hasSession) {
+        // Tetap izinkan akses ke halaman login ketika belum ada sesi
+        if (isLoginPage) {
+            return NextResponse.next();
+        }
+
+        return NextResponse.redirect(new URL(LOGIN_PATH, req.url));
     }
 
-    // Ambil sesi
-    const session = await getSessionFromAPI(request);
-    const role = session?.user?.role?.toLowerCase();
-
-    // Jika tidak ada user atau role tidak diizinkan, redirect ke login
-    if (!role || !ALLOWED_ROLES.has(role)) {
-        const loginUrl = new URL(PUBLIC_PATH, request.url);
-        const redirectTo = pathname + search;
-        if (redirectTo !== PUBLIC_PATH) {
-            loginUrl.searchParams.set("redirectTo", redirectTo);
-        }
-        return NextResponse.redirect(loginUrl);
+    // Jika sudah login dan mencoba buka halaman login, arahkan ke dashboard
+    if (isLoginPage) {
+        return NextResponse.redirect(new URL(DASHBOARD_PATH, req.url));
     }
 
     return NextResponse.next();
 }
 
+// Hanya matcher untuk halaman yang perlu proteksi
 export const config = {
-    matcher: ["/user/:path*"],
+    matcher: ['/user/:path*'],
 };
-
-type SessionResponse = {
-    session: { expiresAt: string; token: string };
-    user: { id: string; role?: string;[key: string]: unknown };
-} | null;
-
-async function getSessionFromAPI(request: NextRequest): Promise<SessionResponse> {
-    const url = new URL("/api/auth/get-session", request.url);
-    const headers = new Headers({
-        accept: "application/json",
-        cookie: request.headers.get("cookie") || "",
-        "x-forwarded-for": request.headers.get("x-forwarded-for") || "",
-        "user-agent": request.headers.get("user-agent") || "",
-    });
-
-    try {
-        const res = await fetch(url, { headers, cache: "no-store" });
-        if (!res.ok) return null;
-        return (await res.json()) as SessionResponse;
-    } catch {
-        return null;
-    }
-}
