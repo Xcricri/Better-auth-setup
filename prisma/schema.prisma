@@ -12,15 +12,23 @@ datasource db {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    email         String    @unique
+    id            String   @id @default(cuid())
+    email         String   @unique
     name          String?
     emailVerified Boolean
     image         String?
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    sessions      Session[]
-    accounts      Account[]
+    role          String   @default("admin") // Tambahan dari schema lama
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    // Relations ke Better-Auth
+    sessions Session[]
+    accounts Account[]
+
+    // Relations ke Konten (CMS)
+    pages      Page[]
+    services   Service[]
+    portfolios Portfolio[]
 
     @@map("user")
 }
@@ -57,4 +65,75 @@ model Account {
 
     @@unique([providerId, accountId])
     @@map("account")
+}
+
+// ==========================
+// CMS MODELS (PAGES, SERVICES, PORTFOLIO)
+// ==========================
+
+model Page {
+    id            Int     @id @default(autoincrement())
+    title         String
+    slug          String  @unique
+    content       String
+    featuredImage String?
+
+    authorId String // Diubah ke String agar match dengan User.id (cuid)
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Service {
+    id          Int     @id @default(autoincrement())
+    title       String
+    description String
+    icon        String?
+
+    authorId String // Diubah ke String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Portfolio {
+    id               Int      @id @default(autoincrement())
+    title            String
+    shortDescription String
+    content          String
+    projectDate      DateTime
+
+    authorId String // Diubah ke String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    images PortfolioImage[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model PortfolioImage {
+    id       Int    @id @default(autoincrement())
+    imageUrl String
+
+    portfolioId Int
+    portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+}
+
+// ==========================
+// CONTACT
+// ==========================
+
+model ContactMessage {
+    id      Int     @id @default(autoincrement())
+    name    String
+    email   String
+    subject String?
+    message String
+
+    createdAt DateTime @default(now())
 }
