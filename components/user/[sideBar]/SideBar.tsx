@@ -15,6 +15,7 @@ export default function Sidebar() {
         { name: 'documents', label: 'Documents', icon: <FileText size={20} />, href: '/documents' },
         { name: 'analytics', label: 'Analytics', icon: <BarChart2 size={20} />, href: '/analytics' },
         { name: 'settings', label: 'Settings', icon: <Settings size={20} />, href: '/settings' },
+        { name: 'User', label: 'User Management', icon: <Settings size={20} />, href: '/user/userdata' },
     ]
 
     return (
